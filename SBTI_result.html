@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SBTI - 你的灵魂人格</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        /* 背景粒子效果 */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 0;
+        }
+
+        .particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            animation: float 15s infinite;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        /* 主容器 */
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+            min-height: 100vh;
+        }
+
+        /* 头部标题 */
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            animation: fadeInDown 0.8s ease;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header-label {
+            display: inline-block;
+            padding: 0.5rem 1.5rem;
+            background: linear-gradient(135deg, rgba(254, 202, 87, 0.2), rgba(255, 159, 67, 0.2));
+            border: 1px solid rgba(254, 202, 87, 0.3);
+            border-radius: 50px;
+            font-size: 0.85rem;
+            color: #feca57;
+            letter-spacing: 2px;
+            margin-bottom: 1rem;
+        }
+
+        .header-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        /* 结果卡片 */
+        .result-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 2.5rem 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+            margin-bottom: 1.5rem;
+            animation: fadeInUp 0.8s ease 0.2s both;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-emoji {
+            font-size: 5rem;
+            margin-bottom: 1rem;
+            animation: bounce 2s ease infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .result-type {
+            font-size: 3rem;
+            font-weight: 900;
+            margin-bottom: 0.5rem;
+            letter-spacing: -2px;
+        }
+
+        .result-enName {
+            font-size: 1.2rem;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.6);
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+        }
+
+        .result-tagline {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.8);
+            padding: 0.8rem 1.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            display: inline-block;
+        }
+
+        /* 详细解读 */
+        .description-card {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            margin-bottom: 1.5rem;
+            animation: fadeInUp 0.8s ease 0.4s both;
+        }
+
+        .description-title {
+            font-size: 1rem;
+            color: #feca57;
+            margin-bottom: 1rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+        }
+
+        .description-text {
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: rgba(255, 255, 255, 0.75);
+            text-align: justify;
+        }
+
+        /* 特征标签 */
+        .traits-card {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 20px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            margin-bottom: 1.5rem;
+            animation: fadeInUp 0.8s ease 0.5s both;
+        }
+
+        .traits-title {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 1rem;
+            letter-spacing: 1px;
+        }
+
+        .traits-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .trait-tag {
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* 分享提示 */
+        .share-card {
+            background: linear-gradient(135deg, rgba(254, 202, 87, 0.1), rgba(255, 159, 67, 0.1));
+            border-radius: 20px;
+            padding: 1.5rem;
+            border: 1px solid rgba(254, 202, 87, 0.2);
+            text-align: center;
+            margin-bottom: 1.5rem;
+            animation: fadeInUp 0.8s ease 0.6s both;
+        }
+
+        .share-title {
+            font-size: 1rem;
+            color: #feca57;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .share-desc {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* 操作按钮 */
+        .actions {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            animation: fadeInUp 0.8s ease 0.7s both;
+        }
+
+        .action-btn {
+            width: 100%;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 14px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Noto Sans SC', sans-serif;
+        }
+
+        .action-btn.primary {
+            background: linear-gradient(135deg, #feca57, #ff9f43);
+            color: #1a1a2e;
+        }
+
+        .action-btn.primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(254, 202, 87, 0.4);
+        }
+
+        .action-btn.secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .action-btn.secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        /* 底部水印 */
+        .watermark {
+            text-align: center;
+            margin-top: 2rem;
+            padding-bottom: 2rem;
+            animation: fadeIn 0.8s ease 1s both;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .watermark-text {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.3);
+            letter-spacing: 2px;
+        }
+
+        .watermark-logo {
+            color: #feca57;
+            font-weight: 700;
+        }
+
+        /* 其他类型推荐 */
+        .more-results {
+            margin-top: 2rem;
+            animation: fadeInUp 0.8s ease 0.8s both;
+        }
+
+        .more-title {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.5);
+            text-align: center;
+            margin-bottom: 1rem;
+            letter-spacing: 1px;
+        }
+
+        .more-list {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+        }
+
+        .more-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.3s ease;
+        }
+
+        .more-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .more-emoji {
+            font-size: 1.5rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .more-name {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .more-tag {
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* Toast 提示 */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: rgba(0, 0, 0, 0.9);
+            color: #fff;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* 分享图片预览 */
+        .share-preview {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1001;
+            flex-direction: column;
+            padding: 1rem;
+        }
+
+        .share-preview.show {
+            display: flex;
+        }
+
+        .share-preview img {
+            max-width: 100%;
+            max-height: 70vh;
+            border-radius: 16px;
+        }
+
+        .share-preview-actions {
+            margin-top: 1rem;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .share-preview-btn {
+            padding: 0.8rem 2rem;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            font-family: 'Noto Sans SC', sans-serif;
+        }
+
+        .share-preview-btn.save {
+            background: #feca57;
+            color: #1a1a2e;
+        }
+
+        .share-preview-btn.close {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <!-- 背景粒子 -->
+    <div class="particles" id="particles"></div>
+
+    <div class="container">
+        <!-- 头部 -->
+        <div class="header">
+            <span class="header-label">灵魂解析报告</span>
+            <h1 class="header-title">你的专属人格类型</h1>
+        </div>
+
+        <!-- 结果卡片 -->
+        <div class="result-card" id="resultCard">
+            <div class="result-emoji" id="resultEmoji">🐒</div>
+            <div class="result-type" id="resultType">吗喽</div>
+            <div class="result-enName" id="resultEnName">MALO</div>
+            <div class="result-tagline" id="resultTagline">拒绝内卷，只想躺平</div>
+        </div>
+
+        <!-- 详细解读 -->
+        <div class="description-card">
+            <div class="description-title">📜 人格解读</div>
+            <p class="description-text" id="resultDesc">
+                你是那个从山林里被拽进职场的"吗喽"...
+            </p>
+        </div>
+
+        <!-- 特征标签 -->
+        <div class="traits-card">
+            <div class="traits-title">🏷️ 人格特征</div>
+            <div class="traits-list" id="traitsList">
+                <span class="trait-tag">躺平大师</span>
+                <span class="trait-tag">摸鱼高手</span>
+                <span class="trait-tag">低欲望</span>
+            </div>
+        </div>
+
+        <!-- 分享提示 -->
+        <div class="share-card">
+            <div class="share-title">📤 分享你的灵魂人格</div>
+            <p class="share-desc">让朋友们也来测测他们的灵魂类型</p>
+        </div>
+
+        <!-- 操作按钮 -->
+        <div class="actions">
+            <button class="action-btn primary" id="shareBtn">
+                🔥 分享给好友
+            </button>
+            <button class="action-btn secondary" id="reTestBtn">
+                ↻ 重新测试
+            </button>
+        </div>
+
+        <!-- 其他类型 -->
+        <div class="more-results">
+            <div class="more-title">你可能也想知道</div>
+            <div class="more-list" id="moreList">
+                <!-- 动态渲染 -->
+            </div>
+        </div>
+
+        <!-- 水印 -->
+        <div class="watermark">
+            <p class="watermark-text">Generated by <span class="watermark-logo">SBTI</span></p>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast">链接已复制！</div>
+
+    <script>
+        // 人格类型数据
+        const personalities = {
+            MALO: {
+                name: "吗喽",
+                enName: "MALO",
+                emoji: "🐒",
+                tagline: "拒绝内卷，只想躺平",
+                desc: "你就是那只从山林里被拽进职场的'吗喽'。嘴上说着'摆烂'，心里却什么都懂。你的生存哲学是：能坐着绝不站着，能躺着绝不坐着。在你眼里，什么KPI、OKR都是浮云，只有沙发的凹陷程度才是你真正在乎的指标。别人在冲刺，你在散步；别人在加班，你在研究怎么摸鱼摸得更高雅。但别误会，你不是真的什么都不在乎，你只是在乎得很'淡定'——毕竟，急也没用，不如喝杯茶。",
+                traits: ["躺平大师", "摸鱼高手", "低欲望", "佛系养生", "反内卷先锋"],
+                color: "#26de81"
+            },
+            DEAD: {
+                name: "死者",
+                enName: "DEAD",
+                emoji: "💀",
+                tagline: "看透人生，日常疲惫",
+                desc: "恭喜你，你已经'死'在了每一个工作日的早八。你的人生态度是'已读即归档'，对于一切积极向上的事物都保持着'死者'般的平静。你的脸上永远写着四个字：'别来烦我'。开会时你在神游，团建时你在隐身，聚餐时你在角落默默吃饭。不是你高冷，是你真的很累——光是活着就已经用光了所有力气。但别担心，你的'dead'不是真的死，而是一种看透世事的淡定。毕竟，有什么烦恼是睡一觉不能解决的呢？如果有，那就再睡一觉。",
+                traits: ["灵魂出窍", "行尸走肉", "人间疲惫", "神游专家", "睡眠优先"],
+                color: "#a55eea"
+            },
+            ATM: {
+                name: "送钱者",
+                enName: "ATM-er",
+                emoji: "🏧",
+                tagline: "钱包永远在为别人打工",
+                desc: "你是那个传说中的'ATM人格'——随时准备为人民服务的那种。你的钱包仿佛有某种神奇的吸引力，无论是朋友借钱、同事请客、还是网红种草，最后都会精准地流向别人的口袋。你奉行'钱是王八蛋，花了还能赚'的人生信条，虽然每次月底看着余额都在怀疑人生。你的朋友都知道，有困难找你就对了；你的银行都知道，有账单找你也对了。你不是不在乎钱，你只是更在乎'情分'——哪怕这份情分只值一杯奶茶，也要喝得体面。",
+                traits: ["散财童子", "社交ATM", "大方豪爽", "月光族", "义气担当"],
+                color: "#f7b731"
+            },
+            Hottie: {
+                name: "尤物",
+                enName: "Hottie",
+                emoji: "🔥",
+                tagline: "自带气场，万人迷体质",
+                desc: "你的存在本身就是一种'人间干扰项'。不是因为你有多好看（虽然可能确实好看），而是因为你浑身散发着一种'我很好，但我不想证明'的松弛感。这种反差萌让无数人对你欲罢不能——越想拿捏你，你越不让他们得逞。你不刻意讨好谁，也不轻易得罪谁，但你的一举一动总能牵动周围人的神经。你是天生的'氛围感美人'，不需要浓妆艳抹，往那儿一站就是C位。别人在努力被看见，你只需要'在'就够了。",
+                traits: ["氛围感满格", "天生C位", "松弛感", "自带光环", "人间理想型"],
+                color: "#fd79a8"
+            },
+            Fxxker: {
+                name: "草者",
+                enName: "FUCK",
+                emoji: "😤",
+                tagline: "情绪说来就来，绝不憋着",
+                desc: "恭喜你成为人群中最'真实'的那个存在。你的情绪就像天气预报——说变就变，从晴天霹雳到暴风暴雨只需要0.5秒。你不是不好相处，你只是太不擅长'装'了。委屈了要哭，高兴了要笑，看不顺眼当场就怼。你的人生字典里没有'忍一时风平浪静'，只有'退一步越想越气'。别人觉得你脾气差，但只有你自己知道，你只是活得比较'诚实'。毕竟，这个社会已经够压抑了，为什么还要在家里也演戏呢？",
+                traits: ["真实不做作", "情绪饱满", "敢爱敢恨", "直接坦率", "人间清醒"],
+                color: "#ff6b6b"
+            },
+            CTRL: {
+                name: "拿捏者",
+                enName: "CTRL",
+                emoji: "🕹️",
+                tagline: "人间清醒，格局打开",
+                desc: "你是朋友圈里那个永远'拎得清'的人。别人在情绪里挣扎，你在分析情绪的成因；别人在抱怨命运不公，你在研究怎么改写剧本。你的人生仿佛开了'全局视野'，能看清每一步棋的走向和结局。你不轻易被PUA，不随便被带节奏，遇到问题先想解法再发泄情绪。你是那个大家遇到困难第一个想咨询的人，因为你知道——焦虑不解决问题，行动才解决问题。",
+                traits: ["人间清醒", "情绪稳定", "问题解决者", "格局打开", "理性担当"],
+                color: "#00d2d3"
+            },
+            POOR: {
+                name: "贫困者",
+                enName: "POOR",
+                emoji: "🪴",
+                tagline: "钱包比脸还干净",
+                desc: "你是那个永远在'等发工资'和'等还花呗'之间循环的'贫困者'。不是你不努力，是这个社会的物价太过分！你的消费观是'该省省该花花'，但执行起来就变成了'该花花该花花'。看着银行卡余额，你会产生一种'我钱呢？'的灵魂拷问。你的手机相册里存满了各种省钱攻略，但打开外卖软件的瞬间就全忘了。你不是败家，你只是...还没找到省钱和享受的平衡点。",
+                traits: ["月光族", "吃土专家", "花呗达人", "贫穷但馋", "省钱理论家"],
+                color: "#a55eea"
+            },
+            GHOST: {
+                name: "幽灵",
+                enName: "GHOST",
+                emoji: "👻",
+                tagline: "来无影去无踪，社交绝缘体",
+                desc: "你是那个在群里'已读'永远不等于'回复'的幽灵人。不是高冷，是真的懒得打字；不是社恐，是社交太费能量。你的存在感就像WiFi信号——有，但时有时无。别人找你你总'在忙'，其实你只是在沙发上躺着想事情。你是那种'需要独处来充电'的人，和人待久了真的会电量耗尽。你不是不在乎朋友，你只是觉得'真正的朋友不需要经常联系'——虽然这个理论让你越来越没朋友。",
+                traits: ["已读不回", "社交隐身", "独处充电", "消息延迟", "高冷神秘"],
+                color: "#636e72"
+            },
+            DRAMA: {
+                name: "影帝",
+                enName: "DRAMA",
+                emoji: "🎬",
+                tagline: "人生如戏，全靠演技",
+                desc: "你的内心戏可以拍成一部80集连续剧。别人看你表面波澜不惊，其实你脑子里已经上演了'宫斗剧'、'悬疑剧'、'爱情剧'等多个剧种。你是朋友圈里的'气氛组组长'，发个朋友圈要纠结半小时文案，配图要试十种滤镜。你的情绪丰富度堪比四季更替——早上还阳光灿烂，中午就阴云密布，晚上可能直接暴风雨。你不是在演，你是真的很投入！",
+                traits: ["内心戏丰富", "情绪过山车", "朋友圈纠结", "共情能力MAX", "戏精本精"],
+                color: "#e17055"
+            },
+            WISE: {
+                name: "大智若愚",
+                enName: "WISE",
+                emoji: "🦉",
+                tagline: "看透不说透，还是好朋友",
+                desc: "你是那个一眼就能看穿别人小心思的'老狐狸'。不是因为你城府深，是因为你真的见太多套路了。你选择'看透不说透'，不是虚伪，是懒得计较。你深谙'难得糊涂'的人生哲学，知道有些事认真就输了。你不轻易站队，不随便表态，但在关键时刻总能一针见血。你是那个朋友遇到情感困惑第一个想倾诉的人，因为你不仅能听，还能给出'人间清醒'的分析。",
+                traits: ["洞察力强", "看透不说透", "大智若愚", "稳重可靠", "人生导师"],
+                color: "#6c5ce7"
+            }
+        };
+
+        // 获取URL参数
+        function getQueryParam(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+        // 显示Toast
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+
+        // 渲染结果
+        function renderResult() {
+            // 从localStorage获取结果
+            const resultData = localStorage.getItem('sbti_result');
+            
+            if (!resultData) {
+                // 没有结果，跳转回首页
+                window.location.href = 'index.html';
+                return;
+            }
+
+            const result = JSON.parse(resultData);
+            const personality = personalities[result.type];
+
+            // 设置颜色
+            document.documentElement.style.setProperty('--result-color', personality.color);
+            
+            // 更新结果卡片
+            document.getElementById('resultEmoji').textContent = personality.emoji;
+            document.getElementById('resultType').textContent = personality.name;
+            document.getElementById('resultType').style.color = personality.color;
+            document.getElementById('resultEnName').textContent = personality.enName;
+            document.getElementById('resultTagline').textContent = personality.tagline;
+            document.getElementById('resultDesc').textContent = personality.desc;
+
+            // 渲染特征标签
+            const traitsList = document.getElementById('traitsList');
+            traitsList.innerHTML = personality.traits.map(trait => 
+                `<span class="trait-tag">${trait}</span>`
+            ).join('');
+
+            // 渲染其他类型
+            const otherTypes = Object.keys(personalities)
+                .filter(type => type !== result.type)
+                .sort(() => Math.random() - 0.5)
+                .slice(0, 4);
+
+            const moreList = document.getElementById('moreList');
+            moreList.innerHTML = otherTypes.map(type => {
+                const p = personalities[type];
+                return `
+                    <div class="more-item">
+                        <div class="more-emoji">${p.emoji}</div>
+                        <div class="more-name">${p.name}</div>
+                        <div class="more-tag">${p.tagline}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 创建背景粒子
+        function createParticles() {
+            const container = document.getElementById('particles');
+            const particleCount = 20;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+                particle.style.animationDelay = Math.random() * 10 + 's';
+                particle.style.width = (Math.random() * 4 + 2) + 'px';
+                particle.style.height = particle.style.width;
+                container.appendChild(particle);
+            }
+        }
+
+        // 分享功能
+        function shareResult() {
+            const text = `我在SBTI测出的人格是"${document.getElementById('resultType').textContent}"！\n\n${document.getElementById('resultTagline').textContent}\n\n快去测测你的灵魂人格吧！🔗 ${window.location.origin}/SBTI/`;
+            
+            // 尝试使用Web Share API
+            if (navigator.share) {
+                navigator.share({
+                    title: 'SBTI 灵魂人格测试',
+                    text: text,
+                    url: window.location.href
+                }).catch(() => {
+                    // 降级到复制链接
+                    copyToClipboard();
+                });
+            } else {
+                // 降级到复制链接
+                copyToClipboard();
+            }
+        }
+
+        // 复制到剪贴板
+        function copyToClipboard() {
+            const text = `我在SBTI测出的人格是"${document.getElementById('resultType').textContent}"！\n\n${document.getElementById('resultTagline').textContent}\n\n快去测测你的灵魂人格吧！🔗 ${window.location.href}`;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('链接已复制，快去分享给好友！');
+            }).catch(() => {
+                showToast('复制失败，请手动复制');
+            });
+        }
+
+        // 重新测试
+        function reTest() {
+            localStorage.removeItem('sbti_result');
+            localStorage.removeItem('sbti_answers');
+            window.location.href = 'test.html';
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            createParticles();
+            renderResult();
+
+            // 绑定事件
+            document.getElementById('shareBtn').addEventListener('click', shareResult);
+            document.getElementById('reTestBtn').addEventListener('click', reTest);
+        });
+    </script>
+</body>
+</html>

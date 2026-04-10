@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SBTI - 发现你的灵魂人格</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            overflow: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 20%, rgba(255, 119, 114, 0.2) 0%, transparent 50%),
+                        radial-gradient(circle at 40% 40%, rgba(78, 205, 196, 0.15) 0%, transparent 40%);
+            animation: float 20s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(2%, 2%) rotate(1deg); }
+            50% { transform: translate(-1%, 3%) rotate(-1deg); }
+            75% { transform: translate(3%, -1%) rotate(0.5deg); }
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .logo {
+            font-size: 4rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+            letter-spacing: -2px;
+            animation: glow 3s ease-in-out infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% { filter: drop-shadow(0 0 20px rgba(255, 107, 107, 0.5)); }
+            50% { filter: drop-shadow(0 0 40px rgba(254, 202, 87, 0.8)); }
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1rem;
+            margin-bottom: 2rem;
+            letter-spacing: 4px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 2.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-title {
+            color: #fff;
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .card-desc {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.85rem;
+            margin-bottom: 2rem;
+        }
+
+        .input-wrapper {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .code-input {
+            width: 100%;
+            padding: 1.2rem 1.5rem;
+            font-size: 1.4rem;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+            letter-spacing: 8px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            color: #fff;
+            outline: none;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        .code-input::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+            letter-spacing: 4px;
+            font-size: 1rem;
+        }
+
+        .code-input:focus {
+            border-color: #feca57;
+            box-shadow: 0 0 30px rgba(254, 202, 87, 0.3);
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .error-msg {
+            color: #ff6b6b;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+        }
+
+        .error-msg.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            background: linear-gradient(135deg, #feca57, #ff9f43);
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .submit-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(254, 202, 87, 0.4);
+        }
+
+        .submit-btn:hover::before {
+            left: 100%;
+        }
+
+        .submit-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .footer-tip {
+            margin-top: 1.5rem;
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 0.75rem;
+        }
+
+        .footer-tip span {
+            color: #feca57;
+        }
+
+        .char-bg {
+            position: fixed;
+            font-size: 8rem;
+            font-weight: 900;
+            color: rgba(255, 255, 255, 0.03);
+            pointer-events: none;
+            animation: drift 30s linear infinite;
+        }
+
+        @keyframes drift {
+            0% { transform: translateY(100vh) rotate(0deg); }
+            100% { transform: translateY(-100vh) rotate(360deg); }
+        }
+
+        .loading {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(26, 26, 46, 0.95);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .loading.show {
+            display: flex;
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top-color: #feca57;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: #fff;
+            margin-top: 1rem;
+            font-size: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="char-bg" style="left: 5%; animation-delay: 0s; animation-duration: 25s;">S</div>
+    <div class="char-bg" style="left: 25%; animation-delay: -5s; animation-duration: 30s;">B</div>
+    <div class="char-bg" style="left: 45%; animation-delay: -10s; animation-duration: 28s;">T</div>
+    <div class="char-bg" style="left: 65%; animation-delay: -15s; animation-duration: 32s;">I</div>
+    <div class="char-bg" style="left: 85%; animation-delay: -20s; animation-duration: 26s;">?</div>
+
+    <div class="container">
+        <div class="logo">SBTI</div>
+        <p class="subtitle">SOUL BEHAVIOR TYPE INDICATOR</p>
+        
+        <div class="card">
+            <h2 class="card-title">🔐 输入验证码解锁测试</h2>
+            <p class="card-desc">测测你的灵魂在第几层</p>
+            
+            <div class="input-wrapper">
+                <input 
+                    type="text" 
+                    class="code-input" 
+                    id="codeInput" 
+                    placeholder="输入验证码" 
+                    maxlength="6"
+                    autocomplete="off"
+                >
+                <p class="error-msg" id="errorMsg"></p>
+            </div>
+            
+            <button class="submit-btn" id="submitBtn">
+                开始探索 →
+            </button>
+            
+            <p class="footer-tip">
+                验证码获取方式：<span>小红书店铺购买</span>
+            </p>
+        </div>
+    </div>
+
+    <div class="loading" id="loading">
+        <div class="loading-spinner"></div>
+        <p class="loading-text">正在解锁你的灵魂...</p>
+    </div>
+
+    <script src="codes.js"></script>
+    <script>
+        // 获取已使用的验证码
+        function getUsedCodes() {
+            let used = localStorage.getItem('sbti_used_codes');
+            return used ? JSON.parse(used) : [];
+        }
+
+        // 标记验证码已使用
+        function markCodeUsed(code) {
+            let used = getUsedCodes();
+            used.push(code);
+            localStorage.setItem('sbti_used_codes', JSON.stringify(used));
+        }
+
+        // 验证验证码
+        function validateCode(code) {
+            const usedCodes = getUsedCodes();
+            const normalizedCode = code.toUpperCase().trim();
+            
+            if (usedCodes.includes(normalizedCode)) {
+                return { valid: false, error: '该验证码已使用过啦～' };
+            }
+            
+            if (VALID_CODES.includes(normalizedCode)) {
+                return { valid: true };
+            }
+            
+            return { valid: false, error: '验证码错误，请重新输入' };
+        }
+
+        const codeInput = document.getElementById('codeInput');
+        const submitBtn = document.getElementById('submitBtn');
+        const errorMsg = document.getElementById('errorMsg');
+        const loading = document.getElementById('loading');
+
+        codeInput.addEventListener('input', (e) => {
+            e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+            errorMsg.classList.remove('show');
+        });
+
+        submitBtn.addEventListener('click', handleSubmit);
+        
+        codeInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                handleSubmit();
+            }
+        });
+
+        function handleSubmit() {
+            const code = codeInput.value.trim();
+            
+            if (code.length === 0) {
+                showError('请输入验证码');
+                return;
+            }
+            
+            if (code.length !== 6) {
+                showError('验证码为6位字符');
+                return;
+            }
+            
+            const result = validateCode(code);
+            
+            if (!result.valid) {
+                showError(result.error);
+                codeInput.focus();
+                return;
+            }
+            
+            loading.classList.add('show');
+            markCodeUsed(code);
+            localStorage.setItem('sbti_verified', 'true');
+            localStorage.setItem('sbti_verify_time', Date.now().toString());
+            
+            setTimeout(() => {
+                window.location.href = 'test.html';
+            }, 1500);
+        }
+
+        function showError(msg) {
+            errorMsg.textContent = msg;
+            errorMsg.classList.add('show');
+            codeInput.style.borderColor = '#ff6b6b';
+            setTimeout(() => {
+                codeInput.style.borderColor = '';
+            }, 300);
+        }
+    </script>
+</body>
+</html>
