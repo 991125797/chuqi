@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SBTI - 灵魂人格测试</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+        }
+        .container { text-align: center; padding: 2rem; max-width: 500px; width: 90%; }
+        .logo { font-size: 4rem; font-weight: 900; background: linear-gradient(135deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 0.5rem; }
+        .subtitle { color: rgba(255,255,255,0.7); font-size: 1rem; margin-bottom: 2rem; letter-spacing: 4px; }
+        .card { background: rgba(255,255,255,0.05); backdrop-filter: blur(20px); border-radius: 24px; padding: 2.5rem; border: 1px solid rgba(255,255,255,0.1); }
+        .card-title { color: #fff; font-size: 1.3rem; margin-bottom: 0.5rem; font-weight: 700; }
+        .card-desc { color: rgba(255,255,255,0.5); font-size: 0.85rem; margin-bottom: 2rem; }
+        .code-input { width: 100%; padding: 1.2rem 1.5rem; font-size: 1.4rem; font-family: 'Courier New', monospace; text-align: center; letter-spacing: 8px; background: rgba(255,255,255,0.08); border: 2px solid rgba(255,255,255,0.1); border-radius: 16px; color: #fff; outline: none; text-transform: uppercase; }
+        .code-input:focus { border-color: #feca57; box-shadow: 0 0 30px rgba(254,202,87,0.3); }
+        .error-msg { color: #ff6b6b; font-size: 0.9rem; margin-top: 0.5rem; display: none; }
+        .submit-btn { width: 100%; padding: 1rem 2rem; font-size: 1.1rem; font-weight: 700; color: #1a1a2e; background: linear-gradient(135deg, #feca57, #ff9f43); border: none; border-radius: 12px; cursor: pointer; margin-top: 1.5rem; }
+        .footer-tip { margin-top: 1.5rem; color: rgba(255,255,255,0.4); font-size: 0.75rem; }
+        .footer-tip span { color: #feca57; }
+        /* 测试页样式 */
+        .test-page { display: none; padding: 80px 1.5rem 120px; min-height: 100vh; }
+        .header { position: fixed; top: 0; left: 0; width: 100%; z-index: 100; background: rgba(26,26,46,0.95); backdrop-filter: blur(10px); padding: 1rem 1.5rem; }
+        .progress-container { max-width: 600px; margin: 0 auto; }
+        .progress-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+        .progress-text { font-size: 0.9rem; color: rgba(255,255,255,0.7); }
+        .progress-percent { font-size: 1.2rem; font-weight: 700; color: #feca57; }
+        .progress-bar { height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #feca57, #ff9f43); border-radius: 3px; transition: width 0.5s ease; }
+        .question-container { animation: fadeIn 0.5s ease; max-width: 600px; margin: 0 auto; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .question-number { font-size: 0.85rem; color: #feca57; margin-bottom: 1rem; }
+        .question-text { font-size: 1.3rem; font-weight: 700; color: #fff; margin-bottom: 2rem; line-height: 1.6; }
+        .options { display: flex; flex-direction: column; gap: 1rem; }
+        .option { background: rgba(255,255,255,0.05); border: 2px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 1.2rem 1.5rem; cursor: pointer; transition: all 0.3s ease; text-align: left; color: #fff; font-size: 1rem; }
+        .option:hover { background: rgba(255,255,255,0.1); border-color: rgba(254,202,87,0.5); transform: translateX(8px); }
+        .option.selected { background: rgba(254,202,87,0.2); border-color: #feca57; }
+        /* 结果页样式 */
+        .result-page { display: none; padding: 2rem; text-align: center; }
+        .result-emoji { font-size: 6rem; margin-bottom: 1rem; }
+        .result-type { font-size: 2.5rem; font-weight: 900; background: linear-gradient(135deg, #ff6b6b, #feca57); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 0.5rem; }
+        .result-tagline { color: rgba(255,255,255,0.6); font-size: 1.1rem; margin-bottom: 2rem; }
+        .result-desc { background: rgba(255,255,255,0.05); border-radius: 16px; padding: 1.5rem; color: rgba(255,255,255,0.8); line-height: 1.8; margin-bottom: 2rem; text-align: left; }
+        .result-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin-bottom: 2rem; }
+        .tag { background: rgba(254,202,87,0.2); color: #feca57; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.85rem; }
+        .restart-btn { padding: 1rem 2rem; font-size: 1rem; font-weight: 700; color: #1a1a2e; background: linear-gradient(135deg, #feca57, #ff9f43); border: none; border-radius: 12px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="container" id="loginPage">
+        <div class="logo">SBTI</div>
+        <p class="subtitle">SOUL BEHAVIOR TYPE INDICATOR</p>
+        <div class="card">
+            <h2 class="card-title">🔐 输入验证码解锁测试</h2>
+            <p class="card-desc">测测你的灵魂在第几层</p>
+            <input type="text" class="code-input" id="codeInput" placeholder="输入验证码" maxlength="6" autocomplete="off">
+            <p class="error-msg" id="errorMsg"></p>
+            <button class="submit-btn" id="submitBtn">开始探索 →</button>
+            <p class="footer-tip">验证码获取方式：<span>小红书店铺购买</span></p>
+        </div>
+    </div>
+
+    <div class="test-page" id="testPage">
+        <div class="header">
+            <div class="progress-container">
+                <div class="progress-info">
+                    <span class="progress-text">问题 <span id="currentQ">1</span>/20</span>
+                    <span class="progress-percent" id="progressPercent">5%</span>
+                </div>
+                <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width: 5%"></div></div>
+            </div>
+        </div>
+        <div class="question-container" id="questionContainer"></div>
+    </div>
+
+    <div class="result-page" id="resultPage">
+        <div class="result-emoji" id="resultEmoji">🎭</div>
+        <div class="result-type" id="resultType">吗喽</div>
+        <div class="result-tagline" id="resultTagline">拒绝内卷，只想躺平</div>
+        <div class="result-desc" id="resultDesc"></div>
+        <div class="result-tags" id="resultTags"></div>
+        <button class="restart-btn" id="restartBtn">重新测试</button>
+    </div>
+
+    <script>
+        // ============ 验证码列表（500个）============
+        const VALID_CODES = ['PTVKU6','PM2Z26','J66V9N','2VGVEN','BDVPWQ','LDNL6S','6ZTTND','ELP8V6','4G74QW','RLZ4RX','7HJEDX','3R6B86','HNCUFW','C5K58B','34657E','B7YY23','X2Z6NE','UJKNB9','53Z43R','YM2TK6','CJMSC9','MR88B6','2SL9LL','44WEF8','9VPTWZ','HAVMDD','QAQ3QZ','AXWVQ7','NUFU25','KGK596','73Z7HR','9GUZ47','8EAP5H','PB795A','EV2PFS','JKJMDY','ZXMTXJ','AYZ8LW','3L6VJT','7LJYKH','CQHFYC','APVKYW','RPVL94','RGVB7X','9XZTTM','7WY6Y7','DHTQV2','NK9TB6','M96VQB','WUWB6C','F3696Z','7CNSSA','9FFLDX','BA5JBF','ST8P9N','R5S9P5','BYJ8MF','4ND9T9','JZR5MM','W8NKXH','ZCKLEH','EC8NXK','XEA379','TU76DR','PAPTCF','FBG7QU','GWKBYU','NN8TP7','YGLJ73','QHJ8CT','XJZWD4','JTGRR2','TDBE8G','UF84SP','U7NRQL','XRBFVU','2TGDJR','6RBYJ5','EKZW67','H6W635','5NCFGG','Y54GQY','DYUZ5B','8B8ZB3','6LNXGA','C4PHVJ','NZAQCL','7HJPDF','VQ2LTL','RJQMMT','J952NL','PL4P26','UY2MAC','6T6CB3','33UTBH','TG9K8Y','7RLE7N','B523ZX','H39GQE','FUDZE7','EDGXGC','B4P854','P5PP5Q','TPFM63','SYEMMY','N6XY62','JQMBQD','HPLFP8','WSFJJ4','MW2D2H','5G7J3J','FV5RFP','HPKP3V','VZY9FR','5T77D8','SYPUU2','SRQFFN','FT7VFD','HN64V9','ZAFTCH','DXQT67','FS5X58','LYEV9T','BD6PQN','727X9V','WNLVW3','K8TPWF','KHFTJW','NHV592','QW2WET','QQ3PXU','GSAT7S','SA788F','TPPJBW','UEV9M3','66NXSG','YFXWC8','B3S68F','SKEKP7','XQ4395','AJZJQF','DZKCPE','F5ZNYR','JDAGPW','CTR79G','PSU7DT','73DGUU','XA7Q6R','9TGWZJ','S4M6AN','VN55KR','RA5LLZ','QLN3LV','9V4B5J','HVSATL','7KJD86','5HC4FD','JV4W3C','XSF3W2','ZM7ZCM','H2YF8G','97KLK3','SEADFB','2JLYNS','JY85DV','8AB87N','NWRJTP','H85ZR2','67UYNU','47ER26','F9TT5T','HEEB35','889YQY','XUCML7','RJ65UE','UXXLKF','PXNAVA','7HRH62','VE8HQK','TJSA85','YEALQB','AK5PDW','WK3L8Q','B9HN5M','3EYRCF','YHLKAB','D3NA8K','P5JCM9','PYEFQJ','TXRGW4','R6R7Z6','Z6D2DF','JAAVMA','B3VDDD','T5X9DG','PYS9B6','GD523D','ZZP6WV','Z3UTYA','9GJF9L','24KZ5U','TGVQP6','K7JE4K','URAAUS','5AY6AJ','S2NU2Q','WTP4BK','TAM8ZR','N638LA','DEXNLH','K7QEM9','W47BUF','J8CCWV','JDLYPD','L53Q66','X2QVPP','GE4QEY','CM7JYZ','6MBC5L','TQQ9BK','WZN8W6','WMGXN2','5XLTG9','87TD4R','2U5XW6','EHMPA7','ERLQWV','QZBHJ6','37XWVP','L5YYF2','HJQ6XY','GJX2JU','9THMV6','GCAHGT','6JEPE6','JLL2ET','L3MJXE','NST9NW','5VJ9BA','6F36TE','TN2UR2','HYVZ48','MHW45U','A738GJ','N4YDUG','NHG6RH','D7XL85','X28RJV','7X9FJ5','5QG4AE','M3HNKU','WQ7KS4','DN9BC3','JX7M98','PUQU3G','QNKQUL','NTM6HG','U77P56','7H4ZJN','FA3T4V','N5XWJZ','35XYUU','RRHDQJ','X8HLYX','RQDJA4','LWKEKA','EPM8HQ','K6FSLM','R2FHUB','UJN8WU','8BGQWZ','MWSL5K','KRWBH5','QBHG7J','9WW34T','U23JU7','NEQRSG','FJJ36W','FEU95Y','PMMSNT','XNTJVT','EAC83X','AYTY8W','ZTMW82','L77CQW','LB4F4X','89383Z','NALP8K','4N9SHH','4B3ZYC','BQRE4C','CM5L8X','PVN4G9','WFBR6M','SRLZ37','Q2NRMX','CT83FL','7LXQQT','ZSM5BV','JMY7Y7','UHK23M','H5EX4Y','F85RLD','UMQVJR','UR595Q','L5NQJR','EQLS7T','UA2V3K','3TB3FH','4SXD2B','3BKMTC','BPRYB7','X3X4EX','9HS7RP','G95NAR','Q2NQKW','H9B9Q8','ZXFMWW','3NK8U3','859BE2','EGAQGA','5H2MDQ','JTKNUN','W7AGNL','CUK55Z','J3BPCU','2GE2BB','YP2YBD','C7N8DW','ECE54S','DR99R3','KH4G33','XNCFWG','EJDJRX','CKRLTN','UCZPEY','NT3KF8','W2HPYU','7HQ2LB','3QPXM6','8J6BMV','BHK4PX','TK3SHN','C62BAC','V7CWD3','WWQE96','JXZ8XW','J8HBTH','3DKU9R','W5ZYD4','4ZA6LT','JUU67M','RRCGZR','4GEQF7','SA9ZCG','DC76HD','7LAX3G','59VPKQ','CJRR2E','54ZBG7','HRSQ7D','E658BH','LL8YU3','BDSHVB','YFPE5X','MF78HZ','VTZHNE','38YXAU','YSLBDX','PEAMQH','362QLJ','94DLB2','VRCDRP','XSSSP6','RDX7Y7','UYCZFM','2YNP6K','N7RE2F','9MHU9B','7RRXDE','7MMFD7','S3DQKS','FKBW6S','53XNGE','W968TU','LAA7VK','UEQVJN','M48B63','FAN6P5','NGXG3R','WFC5AU','673CM4','HSYCR6','STGQ95','J49WJA','2NQ2U3','UNFDEV','KSD3UZ','5C9FMF','RPWN2L','UV739G','Q8LSFR','3BKRLZ','4KZAQX','LKXFAN','YLYCQ6','VGX753','24MW2R','SRC5MN','F5834D','N48TQ5','6Y8Y24','UFWSHB','U9WNFN','6SYVVM','TFVTAK','L26RJL','NXS4HR','SQTFAE','82X3QY','TPGAU2','YQ6UNY','NZ6BG2','2NX4CS','AFUNE2','ENVWN8','EHFMYH','G9VLYM','L4YZC3','264K7J','AP4SW8','RW4HC2','5QPZFY','9G6VHW','X8BYTS','2JRYEG','3AUCH4','UZWTGR','DQYFJC','8LYY4X','G6KTBM','X5FC5K','TQWVKV','5787GK','KK2GV3','PRK88E','UKNM3Q','TGCHE6','MSRJDC','BE4XRP','DYZ2UM','QPVYUP','RDCUNZ','NRT75S','W5KPF2','9UB7TA','Z2GCYE','34CXYY','NHHSJC','W7N49K','SXNCJ4','58QAM3','QQVTEF','JJG3DC','4QV5ZK','3Q8FFH','AGH6QN','NWRJSE','N2WMKE','M7BNF2','ZL2SRN','YMJPG8','YWU94U','559HNX','GAWKUW','CQV3Z9','JCNV5T','DLQ92V','F4ZDKH','3T9G9X','KGE5JQ','W2Z9XC','FZTLG6','NJ8BCW','CNQ4SS','YL43C7','JTKUGG','VQQ4RV','HJP9MF','WPD4XY','V4UC4H','R3SSLA','PF2DV7','Q7ZUU7','8MHNHV','B2TQL9','VKDLX9','JPREYA','8WMKZ7','7JMYB7'];
+
+        // ============ 题目 ============
+        const questions = [
+            { q: "周末早上醒来，你的第一反应是？", options: ["继续睡，谁也别想叫我", "刷手机，看看有没有人找我", "起床！今天要干大事", "躺着思考人生的意义"] },
+            { q: "同事在群里@你，但话题和你无关，你会？", options: ["装死，已读不回", "回个表情包敷衍一下", "认真回复，虽然不知道说啥", "直接退群，免得烦"] },
+            { q: "朋友约你周末出门，你内心真实想法是？", options: ["不，我想在家躺着", "可以，但要约在离我近的地方", "走！我也要出门透气", "先看看有没有其他人去"] },
+            { q: "看到朋友圈有人在晒旅行照片，你会？", options: ["划走，和我有什么关系", "默默点赞，内心毫无波澜", "评论：好羡慕啊！下次带我", "截图发给朋友吐槽：又来凡尔赛"] },
+            { q: "领导让你做一件不想做的事，你会？", options: ["表面答应，实际拖到最后一刻", "直接说不会，爱咋咋地", "硬着头皮做，做完吐槽三天", "想办法推给别人"] },
+            { q: "你的情绪状态通常是？", options: ["平稳，没什么能让我大起大落", "容易炸，但来得快去得也快", "经常emo，但不会表现出来", "看情况，因人而异"] },
+            { q: "对于「努力就会有回报」这句话，你的看法是？", options: ["呵呵，骗谁呢", "不完全对，但总比不努力强", "相信，天道酬勤", "看命，和努力没啥关系"] },
+            { q: "有人借了你的钱一直不还，你会？", options: ["算了，就当花钱买个教训", "每隔一段时间提醒一次", "直接要，不还就绝交", "等着对方主动想起来"] },
+            { q: "你的社交状态是？", options: ["社恐，能不见人就不见", "看人，熟人面前社牛", "社交达人，到哪都能聊", "佛系，有人找我再说"] },
+            { q: "对于「人生的意义」这个话题，你觉得？", options: ["没什么意义，活着就行", "还没想明白，先活着看看", "找到热爱的事就是意义", "意义是虚无的，别想太多"] },
+            { q: "买东西时，你更在意？", options: ["价格，能省则省", "质量，贵点没关系", "颜值，好看最重要", "心情，想买就买"] },
+            { q: "你觉得自己是个什么样的人？", options: ["躺平派，不卷不争", "行动派，说干就干", "思考派，想得比做的多", "随缘派，走到哪算哪"] },
+            { q: "遇到困难时，你习惯？", options: ["绕道走，何必为难自己", "硬刚，总会有办法的", "找人帮忙，团结就是力量", "先放着，说不定自己会好"] },
+            { q: "你对「社交礼仪」的态度是？", options: ["太累了，不想装", "该装还是得装", "我觉得很有必要", "看对象，熟人不讲究"] },
+            { q: "收到快递时，你的心情是？", options: ["平淡，就那样吧", "期待，像拆礼物一样", "忘了自己买了啥", "先检查有没有坏"] },
+            { q: "对于「加班」这件事，你的态度是？", options: ["坚决不加，给钱也不加", "看情况，必要时可以加", "能不加班就是赚到", "已经习惯了，加就加吧"] },
+            { q: "你和父母的关系是？", options: ["不太沟通，各过各的", "报喜不报忧", "经常聊天，像朋友一样", "偶尔联系，过节问候"] },
+            { q: "你对未来的规划是？", options: ["没想过，走一步算一步", "有大致方向，但也在调整", "规划得很清楚，在按计划走", "规划了也没用，还是算了"] },
+            { q: "你觉得自己的「社交能量」怎么样？", options: ["电量不足，需要独处充电", "还可以，看场合消耗", "电量满格，越社交越嗨", "不稳定，有时想说话有时不想"] },
+            { q: "最后，用一个词形容你自己？", options: ["佛系", "社畜", "躺平", "努力", "困惑", "清醒"] }
+        ];
+
+        // ============ 人格结果 ============
+        const personalities = [
+            { id: 'MALO', name: '吗喽', emoji: '🐵', tagline: '拒绝内卷，只想躺平', desc: '你是一只自由自在的吗喽，在人生的树上荡来荡去。别人卷别人的，你只想过自己的小日子。你对那些复杂的人际关系和职场内卷毫无兴趣，宁愿把时间花在自己喜欢的事情上。躺平不是摆烂，是你对生活的一种态度选择。你深知人生苦短，何必为难自己？', tags: ['躺平达人', '佛系人生', '拒绝内卷', '自我满足', '活在当下'] },
+            { id: 'DEAD', name: '死者', emoji: '💀', tagline: '看透人生，日常疲惫', desc: '你的精神已经飞升，肉体还在996。你经历过太多，看透太多，对一切都保持着一种"就这样吧"的态度。不是你消极，是你太清醒了。你知道很多事努力也没用，所以干脆佛系面对。你是朋友眼中最"淡"的那个人，仿佛已经活了好几辈子。', tags: ['精神离职', '看透一切', '社交能量为0', '日常疲惫', '灵魂自由'] },
+            { id: 'ATM', name: '送钱者', emoji: '💸', tagline: '钱包永远在为别人打工', desc: '恭喜你，测出了世界上最稀有的人格类型！你总是那个为朋友买单的人，那个主动帮忙的人，那个把别人的事情看得比自己还重要的人。你心地善良，但有时候太容易心软了。朋友们都很爱你，但你的钱包真的需要休息一下了。', tags: ['老好人', '钱包告急', '善良过头', '不懂拒绝', '付出型人格'] },
+            { id: 'Hottie', name: '尤物', emoji: '✨', tagline: '自带气场，万人迷体质', desc: '你就是那个走到哪里都会被注意到的人。不是因为你刻意张扬，而是你有一种与生俱来的魅力。你可能自己都没发现，但周围的人都在偷偷关注你。你的存在感很强，走到哪里都是焦点。记住，你的魅力是你最大的资本，好好利用它。', tags: ['魅力满分', '存在感强', '气质独特', '社交达人', '气场全开'] },
+            { id: 'Fxxker', name: '草者', emoji: '🔥', tagline: '情绪说来就来，绝不憋着', desc: '你是一团行走的火焰，情绪来得快去得也快。开心的时候全世界都是好朋友，不爽的时候谁都别惹你。你不会压抑自己，有什么说什么。虽然有时候会得罪人，但至少你活得很真实。那些虚伪的社交表演，你一秒都演不下去。', tags: ['真性情', '情绪真实', '直来直去', '不会演戏', '爱恨分明'] },
+            { id: 'CTRL', name: '拿捏者', emoji: '🎯', tagline: '人间清醒，格局打开', desc: '你是朋友眼中最稳的那个人，总能看清局势，做出最合理的选择。你不会被情绪左右，也不会冲动做决定。你的人生哲学是：能拿捏的事，绝不放任。你的冷静和理性让你在很多场合都能占据主动，但有时候也会让人觉得距离感有点强。', tags: ['人间清醒', '情绪稳定', '格局打开', '理性决策', '掌控全局'] },
+            { id: 'POOR', name: '贫困者', emoji: '🪙', tagline: '钱包比脸还干净', desc: '恭喜你，你获得了最真实的人格类型！你的人生写照就是：钱没了，下个月再说。你可能在赚钱，但花钱的速度永远比赚钱快。不是你不努力，是这个世界诱惑太多。你的人生格言是：及时行乐，谁知道明天会发生什么？', tags: ['月光族', '钱包哭泣', '消费主义', '活在当下', '潇洒人生'] },
+            { id: 'GHOST', name: '幽灵', emoji: '👻', tagline: '来无影去无踪，社交绝缘体', desc: '你是朋友圈里的隐藏玩家，存在感几乎为零，但大家又都知道你存在。你可能是群聊里的潜水冠军，可能是聚会里的角落选手。你不喜欢被关注，但又不想完全消失。你的社交策略是：能不说话就不说话，能不出现就不出现。', tags: ['社交隐身', '群聊潜水', '存在感低', '独处达人', '佛系社交'] },
+            { id: 'DRAMA', name: '影帝', emoji: '🎭', tagline: '人生如戏，全靠演技', desc: '你是生活舞台上的主角，每天都上演着精彩的表演。你很擅长察言观色，在不同的场合扮演不同的角色。有人说你虚伪，但你知道这就是社交生存法则。你的演技已经炉火纯青，很多时候连自己都分不清哪个是真实的自己了。', tags: ['社交达人', '演技在线', '察言观色', '人设经营', '八面玲珑'] },
+            { id: 'WISE', name: '大智若愚', emoji: '🦉', tagline: '看透不说透，还是好朋友', desc: '你是那个看透一切但选择沉默的人。你有很多想法，但不会轻易表达。你很清楚每个人在想什么，但你觉得揭穿没必要。你的智慧体现在：知道什么时候该说，什么时候不该说。你不是不聪明，是太聪明了，所以选择装傻。', tags: ['深藏不露', '看破不说', '智慧担当', '人狠话不多', '城府很深'] }
+        ];
+
+        // ============ 状态变量 ============
+        let currentQuestion = 0;
+        let answers = [];
+
+        // ============ DOM元素 ============
+        const loginPage = document.getElementById('loginPage');
+        const testPage = document.getElementById('testPage');
+        const resultPage = document.getElementById('resultPage');
+        const codeInput = document.getElementById('codeInput');
+        const submitBtn = document.getElementById('submitBtn');
+        const errorMsg = document.getElementById('errorMsg');
+        const questionContainer = document.getElementById('questionContainer');
+
+        // ============ 验证码验证 ============
+        function getUsedCodes() {
+            return JSON.parse(localStorage.getItem('sbti_used_codes') || '[]');
+        }
+
+        function markCodeUsed(code) {
+            let used = getUsedCodes();
+            used.push(code);
+            localStorage.setItem('sbti_used_codes', JSON.stringify(used));
+        }
+
+        function validateCode(code) {
+            const usedCodes = getUsedCodes();
+            const c = code.toUpperCase().trim();
+            if (usedCodes.includes(c)) return { valid: false, error: '该验证码已使用过' };
+            if (VALID_CODES.includes(c)) return { valid: true };
+            return { valid: false, error: '验证码错误，请重试' };
+        }
+
+        // ============ 页面切换 ============
+        function showTestPage() {
+            loginPage.style.display = 'none';
+            testPage.style.display = 'block';
+            resultPage.style.display = 'none';
+            renderQuestion();
+        }
+
+        function showResultPage(personality) {
+            loginPage.style.display = 'none';
+            testPage.style.display = 'none';
+            resultPage.style.display = 'block';
+            
+            document.getElementById('resultEmoji').textContent = personality.emoji;
+            document.getElementById('resultType').textContent = personality.name;
+            document.getElementById('resultTagline').textContent = personality.tagline;
+            document.getElementById('resultDesc').textContent = personality.desc;
+            
+            const tagsContainer = document.getElementById('resultTags');
+            tagsContainer.innerHTML = personality.tags.map(t => `<span class="tag">${t}</span>`).join('');
+        }
+
+        // ============ 题目渲染 ============
+        function renderQuestion() {
+            const q = questions[currentQuestion];
+            const progress = ((currentQuestion + 1) / questions.length * 100).toFixed(0);
+            
+            document.getElementById('currentQ').textContent = currentQuestion + 1;
+            document.getElementById('progressPercent').textContent = progress + '%';
+            document.getElementById('progressFill').style.width = progress + '%';
+
+            questionContainer.innerHTML = `
+                <div class="question-number">第 ${currentQuestion + 1} 题 / 共 ${questions.length} 题</div>
+                <div class="question-text">${q.q}</div>
+                <div class="options">
+                    ${q.options.map((opt, i) => `<div class="option" data-index="${i}">${opt}</div>`).join('')}
+                </div>
+            `;
+
+            document.querySelectorAll('.option').forEach(el => {
+                el.addEventListener('click', () => selectOption(parseInt(el.dataset.index)));
+            });
+        }
+
+        function selectOption(index) {
+            answers[currentQuestion] = index;
+            document.querySelectorAll('.option').forEach((el, i) => {
+                el.classList.toggle('selected', i === index);
+            });
+            
+            setTimeout(() => {
+                if (currentQuestion < questions.length - 1) {
+                    currentQuestion++;
+                    renderQuestion();
+                } else {
+                    calculateResult();
+                }
+            }, 300);
+        }
+
+        // ============ 计算结果 ============
+        function calculateResult() {
+            // 简单的权重计算
+            const scores = {};
+            personalities.forEach(p => scores[p.id] = 0);
+            
+            // 根据答案计算分数
+            answers.forEach((ans, qIdx) => {
+                if (qIdx < 5 && ans === 0) scores['MALO'] += 2;
+                if (qIdx < 5 && ans === 3) scores['DEAD'] += 2;
+                if (qIdx >= 5 && qIdx < 10 && ans === 2) scores['ATM'] += 2;
+                if (qIdx >= 5 && qIdx < 10 && ans === 1) scores['Hottie'] += 1;
+                if (qIdx >= 10 && qIdx < 15 && ans === 0) scores['Fxxker'] += 2;
+                if (qIdx >= 10 && qIdx < 15 && ans === 2) scores['CTRL'] += 2;
+                if (qIdx >= 15 && ans === 1) scores['POOR'] += 2;
+                if (qIdx >= 15 && ans === 0) scores['GHOST'] += 1;
+            });
+            
+            // 随机加一些分数，让结果更有趣
+            personalities.forEach(p => scores[p.id] += Math.random() * 3);
+            
+            // 找出最高分
+            let maxScore = 0;
+            let result = personalities[0];
+            for (const p of personalities) {
+                if (scores[p.id] > maxScore) {
+                    maxScore = scores[p.id];
+                    result = p;
+                }
+            }
+            
+            showResultPage(result);
+        }
+
+        // ============ 事件绑定 ============
+        codeInput.addEventListener('input', (e) => {
+            e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+            errorMsg.style.display = 'none';
+        });
+
+        submitBtn.addEventListener('click', () => {
+            const code = codeInput.value.trim();
+            if (code.length !== 6) {
+                errorMsg.textContent = '请输入6位验证码';
+                errorMsg.style.display = 'block';
+                return;
+            }
+            
+            const result = validateCode(code);
+            if (!result.valid) {
+                errorMsg.textContent = result.error;
+                errorMsg.style.display = 'block';
+                return;
+            }
+            
+            markCodeUsed(code);
+            localStorage.setItem('sbti_verified', 'true');
+            localStorage.setItem('sbti_verify_time', Date.now().toString());
+            showTestPage();
+        });
+
+        codeInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') submitBtn.click();
+        });
+
+        document.getElementById('restartBtn').addEventListener('click', () => {
+            currentQuestion = 0;
+            answers = [];
+            codeInput.value = '';
+            localStorage.removeItem('sbti_verified');
+            localStorage.removeItem('sbti_verify_time');
+            loginPage.style.display = 'flex';
+            testPage.style.display = 'none';
+            resultPage.style.display = 'none';
+        });
+
+        // 检查是否已验证
+        const verified = localStorage.getItem('sbti_verified');
+        const verifyTime = localStorage.getItem('sbti_verify_time');
+        if (verified && verifyTime && (Date.now() - parseInt(verifyTime) < 24 * 60 * 60 * 1000)) {
+            showTestPage();
+        }
+    </script>
+</body>
+</html>
